@@ -1,10 +1,10 @@
 # Oxnotes - Simple CLI Note Taking
 Written in Rust, Oxnotes is a simple and efficient note taking program that runs in your command line. Use your favorite text editor (i.e. Nano, Edit) to open your notes and take them down quickly.
 
-# How to Use
+## How to Use
 The program is incredibly simple to use. Notes are simply split into categorized and uncategorized ones.
 
-## Uncategorized Notes
+### Uncategorized Notes
 To create an uncategorized note, run this command:
 
 `oxnotes add note "My First Note"`
@@ -17,7 +17,7 @@ If we want to list all uncategorized notes, run this command:
 
 `oxnotes list notes`
 
-## Categorized Notes
+### Categorized Notes
 You are able to categorize notes by creating categories. For example, we can create a category with this command:
 
 `oxnotes add category "Lecture Notes"`
