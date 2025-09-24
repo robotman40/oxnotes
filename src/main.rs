@@ -10,10 +10,9 @@ fn main() {
     setup::create_directory();
 
     let args: Vec<String> = env::args().collect::<Vec<String>>();
-    println!("{:?}", args);
 
     if args.len() < 2 {
-        // Figure later
+        println!("No command provided");
         std::process::exit(1);
     }
 
@@ -74,7 +73,10 @@ fn main() {
     } else if args.get(1) == Some(&"open".into()) {
         if args.len() < 4 {
             if args.get(2) != None {
-                open_uncategorized_note(args.get(2).unwrap()).unwrap();
+                match open_uncategorized_note(args.get(2).unwrap()) {
+                    Ok(path) => println!("Note opened at: {}", path.to_str().unwrap()),
+                    Err(e) => eprintln!("Error opening note: {}", e),  
+                };
             } else {
                 eprintln!("Note name not provided");
                 std::process::exit(1);

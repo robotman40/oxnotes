@@ -29,7 +29,6 @@ fn get_save_path() -> PathBuf {
 fn open_text_editor(path: &PathBuf) {
     #[cfg(target_os = "linux")]
     {
-        println!("{}", format!("nano \"{}\"", path.to_str().unwrap()));
         process::Command::new("nano")
             .args([path.to_str().unwrap()])
             .stdin(Stdio::inherit())
