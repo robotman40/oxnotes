@@ -43,6 +43,9 @@ Currently, you can compile this program for Windows and Linux via Cargo (MacOS s
 
 But I also provide installation programs in the releases for the aforementioned platforms. Use this for the quickest setup.
 
+On Windows, it uses [https://github.com/microsoft/edit](Edit), which is only preinstalled on Windows 11 Insider Builds. To install it, run `winget install Microsoft.Edit`.
+
 ## Planned Features
+- Deleting Notes and Categories
 - Configuration Utilities
 - MacOS Support
