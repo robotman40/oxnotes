@@ -4,11 +4,6 @@ use std::fs::File;
 use std::process;
 use std::process::{Stdio};
 
-pub enum EntryType {
-    Category,
-    Note,
-}
-
 fn get_save_path() -> PathBuf {
     // Currently hardcoding text editor to nano for Linux and will hardcode Edit for Windows later.
     // Editor will be made configurable in the future.
@@ -64,7 +59,7 @@ fn get_last_path_item(path: &PathBuf) -> PathBuf {
     }
 }
 
-pub fn get_entries(entrytype: EntryType) -> Vec<PathBuf> {
+pub fn get_uncategorized_notes() -> Vec<PathBuf> {
     let mut entries: Vec<PathBuf> = Vec::new();
     let save_path = get_save_path();
 
@@ -75,23 +70,72 @@ pub fn get_entries(entrytype: EntryType) -> Vec<PathBuf> {
         let path = entry.path();
 
         if path.parent() == Some(&save_path) {
-            match entrytype {
-                EntryType::Category => {
-                    if path.is_dir() {
-                        entries.push(get_last_path_item(&path));
-                    }
+            // EntryType::Category => {
+            //     if path.is_dir() {
+            //         entries.push(get_last_path_item(&path));
+            //     }
+            // }
+            if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("note") {
+                let mut filename = get_last_path_item(&path)
+                    .to_string_lossy()
+                    .to_string();
+                if filename.ends_with(".note") {
+                    filename.truncate(filename.len() - 5);
                 }
-                EntryType::Note => {
-                    if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("note") {
-                        let mut filename = get_last_path_item(&path)
-                            .to_string_lossy()
-                            .to_string();
-                        if filename.ends_with(".note") {
-                            filename.truncate(filename.len() - 5);
-                        }
-                        entries.push(PathBuf::from(filename));
-                    }
+                entries.push(PathBuf::from(filename));
+            }
+        }
+    }
+
+    entries
+}
+
+pub fn get_categorized_notes(category: &str) -> Vec<PathBuf> {
+    let mut entries: Vec<PathBuf> = Vec::new();
+    let save_path = get_save_path();
+    let category_path = format!("{}/{}", save_path.to_str().unwrap(), category);
+
+    let read_dir = match std::fs::read_dir(&category_path) {
+        Ok(rd) => rd,
+        Err(_) => {
+            eprintln!("Category does not exist");
+            std::process::exit(1);
+        }
+    };
+
+    for entry in read_dir {
+        let entry = entry.unwrap();
+        let path = entry.path();
+
+        if path.parent() == Some(&PathBuf::from(&category_path)) {
+            if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("note") {
+                let mut filename = get_last_path_item(&path)
+                    .to_string_lossy()
+                    .to_string();
+                if filename.ends_with(".note") {
+                    filename.truncate(filename.len() - 5);
                 }
+                entries.push(PathBuf::from(filename));
+            }
+        }
+    }
+
+    entries
+}
+
+pub fn get_categories() -> Vec<PathBuf> {
+    let mut entries: Vec<PathBuf> = Vec::new();
+    let save_path = get_save_path();
+
+    let read_dir = std::fs::read_dir(&save_path).unwrap();
+
+    for entry in read_dir {
+        let entry = entry.unwrap();
+        let path = entry.path();
+
+        if path.parent() == Some(&save_path) {
+            if path.is_dir() {
+                entries.push(get_last_path_item(&path));
             }
         }
     }
@@ -132,6 +176,42 @@ pub fn create_categorized_note(category: &str, name: &str) -> Result<PathBuf, st
             Ok(PathBuf::from(path))
         }
         true => Err(std::io::Error::new(std::io::ErrorKind::AlreadyExists, "Note already exists")),
+    }
+}
+
+pub fn delete_category(name: &str) -> Result<(), std::io::Error> {
+    let path = format!("{}/{}", get_save_path().to_str().unwrap(), name);
+
+    match PathBuf::from(&path).exists() {
+        true => {
+            std::fs::remove_dir_all(&path)?;
+            Ok(())
+        }
+        false => Err(std::io::Error::new(std::io::ErrorKind::NotFound, "Category does not exist")),
+    }
+}   
+
+pub fn delete_uncategorized_note(name: &str) -> Result<(), std::io::Error> {
+    let path = format!("{}/{}.note", get_save_path().to_str().unwrap(), name);
+
+    match PathBuf::from(&path).exists() {
+        true => {
+            std::fs::remove_file(&path)?;
+            Ok(())
+        }
+        false => Err(std::io::Error::new(std::io::ErrorKind::NotFound, "Note does not exist")),
+    }
+}
+
+pub fn delete_categorized_note(category: &str, name: &str) -> Result<(), std::io::Error> {
+    let path = format!("{}/{}/{}.note", get_save_path().to_str().unwrap(), category, name);
+
+    match PathBuf::from(&path).exists() {
+        true => {
+            std::fs::remove_file(&path)?;
+            Ok(())
+        }
+        false => Err(std::io::Error::new(std::io::ErrorKind::NotFound, "Note does not exist")),
     }
 }
 

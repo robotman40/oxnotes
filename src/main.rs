@@ -59,13 +59,20 @@ fn main() {
         }
     } else if args.get(1) == Some(&"list".into()) {
         if args.get(2) == Some(&"categories".into()) {
-            for entry in get_entries(EntryType::Category).iter() {
+            for entry in get_categories().iter() {
                 println!("{}", entry.to_str().unwrap())
             };
         } else if args.get(2) == Some(&"notes".into()) {
-            for entry in get_entries(EntryType::Note).iter() {
-                println!("{}", entry.to_str().unwrap())
-            };
+            if args.len() < 4 {
+                for entry in get_uncategorized_notes().iter() {
+                    println!("{}", entry.to_str().unwrap())
+                };
+            } else {
+                let category = args.get(3).unwrap();
+                for entry in get_categorized_notes(category).iter() {
+                    println!("{}", entry.to_str().unwrap())
+                };
+            }
         } else {
             eprintln!("No list type provided");
             std::process::exit(1);
@@ -89,6 +96,33 @@ fn main() {
                 Ok(path) => println!("Note opened at: {}", path.to_str().unwrap()),
                 Err(e) => eprintln!("Error opening note: {}", e),  
             }
+        }
+    } else if args.get(1) == Some(&"delete".into()) {
+        if args.get(2) != None {
+            if args.get(2) == Some(&"category".into()) {
+                match delete_category(args.get(3).unwrap()) {
+                    Ok(_) => println!("Category deleted"),
+                    Err(e) => eprintln!("Error deleting category: {}", e),
+                }
+            } else if args.get(2) == Some(&"note".into()) {
+                if args.len() < 5 {
+                    match delete_uncategorized_note(args.get(3).unwrap()) {
+                        Ok(_) => println!("Note deleted"),
+                        Err(e) => eprintln!("Error deleting note: {}", e),
+                    }
+                } else {
+                    match delete_categorized_note(args.get(3).unwrap(), args.get(4).unwrap()) {
+                        Ok(_) => println!("Note deleted"),
+                        Err(e) => eprintln!("Error deleting note: {}", e),
+                    }
+                }
+            } else { 
+                println!("Please specify a note or category");
+                std::process::exit(1);
+            }
+        } else {
+            eprintln!("Name not provided");
+            std::process::exit(1);
         }
     } else {
         eprintln!("Unknown command");
