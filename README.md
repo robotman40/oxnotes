@@ -17,6 +17,10 @@ If we want to list all uncategorized notes, run this command:
 
 `oxnotes list notes`
 
+To delete an uncategorized note, execute this:
+
+`oxnotes delete category "My First Note"`
+
 ### Categorized Notes
 You are able to categorize notes by creating categories. For example, we can create a category with this command:
 
@@ -37,6 +41,14 @@ If we want to list all categories, run this command:
 and if we want to list all notes within a category:
 
 `oxnotes list notes "My Category"`
+
+To delete a note in a category:
+
+`oxnotes delete note "Lecture Notes" "Lecture 1"`
+
+But to delete an entire category, including all its content, run this:
+
+`oxnotes delete category "Lecture Notes"`
 
 ## Install
 Currently, you can compile this program for Windows and Linux via Cargo (MacOS support is planned, but is not currently in the works) and manually install it yourself.
