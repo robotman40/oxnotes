@@ -19,12 +19,27 @@ fn get_save_path() -> PathBuf {
             }
         }
     }
+    #[cfg(target_os = "windows")]
+    {
+        let userprofile = env::var("USERPROFILE").unwrap();
+        PathBuf::from(format!("{}/AppData/Roaming/oxnotes", userprofile))
+    }
 }
 
 fn open_text_editor(path: &PathBuf) {
     #[cfg(target_os = "linux")]
     {
         process::Command::new("nano")
+            .args([path.to_str().unwrap()])
+            .stdin(Stdio::inherit())
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .status()
+            .expect("Failed to open editor");
+    }
+    #[cfg(target_os = "windows")]
+    {
+        process::Command::new("edit")
             .args([path.to_str().unwrap()])
             .stdin(Stdio::inherit())
             .stdout(Stdio::inherit())

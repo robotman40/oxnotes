@@ -26,4 +26,19 @@ pub fn create_directory() {
             }
         }
     }
+    #[cfg(target_os = "windows")]
+    {
+        let userprofile = env::var("USERPROFILE").unwrap();
+        let path = PathBuf::from(format!("{}/AppData/Roaming/oxnotes", userprofile));
+
+        if !path.exists() {
+            match fs::create_dir_all(&path) {
+                Ok(_) => (),
+                Err(e) => {
+                    eprintln!("Error creating directory: {}", e);
+                    std::process::exit(1);
+                }
+            }
+        }
+    }
 }
